@@ -122,6 +122,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# sqlite db
+*.db
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies

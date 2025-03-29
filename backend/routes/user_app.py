@@ -11,6 +11,17 @@ UPLOAD_FOLDER = 'backend/orders/'
 
 router = APIRouter()
 
+@router.post('/register_user/')
+def register_user(user_token: str):
+    try:
+        with Session(engine) as session:
+            user = User_Data(user_token=user_token)
+            session.add(user)
+            session.commit()
+        return {'message': 'User registered successfully'}
+    except:
+        return {'message': 'Failed to add user. User already exists !'}
+   
 @router.post('/new_order/')
 def new_order(user_token: str = Form(), ewaste_type: str = Form(), file: UploadFile = File()):
 

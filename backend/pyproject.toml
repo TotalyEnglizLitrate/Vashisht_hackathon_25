@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=58", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dummy_name"
+version = "1.0"
+dependencies = ["fastapi[standard]", "firebase-admin", "firebase", "pydantic", "sqlmodel", "python-dotenv"]
+
+[project.scripts]
+dummy_name = "dummy_name.main:main"

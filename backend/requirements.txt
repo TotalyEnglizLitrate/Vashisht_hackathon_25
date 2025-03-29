@@ -1,6 +1,0 @@
-fastapi[standard]
-firebase-admin
-firebase
-pydantic
-sqlmodel
-python-dotenv

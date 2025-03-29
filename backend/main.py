@@ -2,6 +2,7 @@ import routes
 import uvicorn
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from firebase_admin import credentials, initialize_app
 from routes.database import SQLModel, engine
 
 def create_db():
@@ -11,10 +12,12 @@ def create_db():
 async def lifespan(app: FastAPI):
     create_db()
     yield
-    
+
+cred = credentials.Certificate("firebase_credentials.json")
+initialize_app(cred) 
 app = FastAPI(lifespan=lifespan)
-app.include_router(routes.dash.router, prefix="/app")
-app.include_router(routes.user_app.router, prefix="/dash")
+app.include_router(routes.dash.router, prefix="/dash")
+app.include_router(routes.user_app.router, prefix="/app")
 
 @app.get("/")
 def read_root():

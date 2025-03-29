@@ -1,4 +1,8 @@
 from sqlmodel import SQLModel, create_engine, Field, Session, select
+from firebase_admin import auth
+from functools import wraps
+from typing import Callable
+from fastapi import Request, HTTPException, status
 
 sqlite_url = "sqlite:///database.db"
 
@@ -22,3 +26,69 @@ class Companies_Data(SQLModel, table=True):
     lat: float = Field(nullable=False)
     long: float = Field(nullable=False)
     processed_types: str = Field(default='[]')
+
+def token_validator(f: Callable) -> Callable:
+    @wraps(f)
+    def wrapper(request: Request, *args, **kwargs):
+        auth_header = request.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Bearer token required"
+            )
+        
+        id_token = auth_header.split(" ")[1]
+
+        try:
+            decoded_token = auth.verify_id_token(id_token)
+            request.state.user = decoded_token
+            request.state.user_token = id_token
+            return f(request, *args, **kwargs)
+            
+        except auth.ExpiredIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired"
+            )
+        except auth.RevokedIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token revoked"
+            )
+        except (auth.InvalidIdTokenError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+    
+    return wrapper
+
+
+
+def dummy_token_validator(f: Callable) -> Callable:
+    @wraps(f)
+    def wrapper(request: Request, *args, **kwargs):
+        try:
+            request.state.user = "dummy user info"
+            request.state.user_token = "dummy token"
+            return f(request, *args, **kwargs)
+            
+        except auth.ExpiredIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired"
+            )
+        except auth.RevokedIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token revoked"
+            )
+        except (auth.InvalidIdTokenError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+    
+    return wrapper
+
+

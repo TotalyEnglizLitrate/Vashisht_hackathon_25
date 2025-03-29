@@ -58,3 +58,16 @@ def get_orders(user_token: str):
         ]
 
     return {"orders": order_details}
+
+@router.delete('/order/{order_id}')
+def delete_order(order_id: str):
+    with Session(engine) as session:
+        order = session.get(Order_Data, order_id)
+        img_path = os.path.join(UPLOAD_FOLDER, order_id)
+        if order:
+            session.delete(order)
+            session.commit()
+            os.remove(img_path)
+            return {"message": "Order deleted successfully"}
+        else:
+            return {"message": "Order not found"}

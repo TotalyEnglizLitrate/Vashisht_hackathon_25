@@ -62,3 +62,33 @@ def token_validator(f: Callable) -> Callable:
             )
     
     return wrapper
+
+
+
+def dummy_token_validator(f: Callable) -> Callable:
+    @wraps(f)
+    def wrapper(request: Request, *args, **kwargs):
+        try:
+            request.state.user = "dummy user info"
+            request.state.user_token = "dummy token"
+            return f(request, *args, **kwargs)
+            
+        except auth.ExpiredIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired"
+            )
+        except auth.RevokedIdTokenError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token revoked"
+            )
+        except (auth.InvalidIdTokenError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+    
+    return wrapper
+
+

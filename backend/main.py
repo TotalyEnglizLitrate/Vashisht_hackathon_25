@@ -16,8 +16,8 @@ async def lifespan(app: FastAPI):
 cred = credentials.Certificate("firebase_credentials.json")
 initialize_app(cred) 
 app = FastAPI(lifespan=lifespan)
-app.include_router(routes.dash.router, prefix="/app")
-app.include_router(routes.user_app.router, prefix="/dash")
+app.include_router(routes.dash.router, prefix="/dash")
+app.include_router(routes.user_app.router, prefix="/app")
 
 @app.get("/")
 def read_root():

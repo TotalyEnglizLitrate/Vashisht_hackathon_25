@@ -15,7 +15,6 @@ class Order_Data(SQLModel, table=True):
     order_id: str = Field(primary_key=True)
     order_status: str = Field(default="estimate pending")
     user_token: str = Field(foreign_key="user_data.user_token")
-    files_info: str = Field(default='[]')
     estimated_price: float | None
     ewaste_type: str = Field()
     biddings: str = Field(default='[]')

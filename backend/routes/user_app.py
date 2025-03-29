@@ -1,11 +1,17 @@
 import os
 import shutil
 import uuid
+import PIL.Image
+from dotenv import load_dotenv
 from fastapi import APIRouter, Request
 from sqlmodel import Session, select
 from .database import User_Data, Order_Data, token_validator, dummy_token_validator
 from .database import User_Data, Order_Data, token_validator, engine
 from fastapi import Form, File, UploadFile
+from google import genai
+from google.genai import types
+
+load_dotenv()
 
 UPLOAD_FOLDER = 'backend/orders/'
 
@@ -71,3 +77,21 @@ def delete_order(order_id: str):
             return {"message": "Order deleted successfully"}
         else:
             return {"message": "Order not found"}
+
+@router.post('/generate_description/')
+def generate_description(file: UploadFile = File()):
+    image = PIL.Image.open(file.file)
+    prompt = '''
+    You are given an image of a E-Waste clicked by the user. You need to provide a brief description and other information that will be useful to evaluate the product for e-waste companies with this image of the product you see. 
+    Only return product details not the views or any other unnecessary information.
+    OUTPUT FORMAT:
+
+    DESCRIPTION:
+    <description>
+    '''
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=[prompt, image])
+
+    return response.text

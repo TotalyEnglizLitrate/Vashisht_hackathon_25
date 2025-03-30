@@ -12,6 +12,8 @@ An E-waste collection platform, acting as an intermediary between consumers/busi
 - [R Uthaya Murthy](https://github.com/Uthayamurthy/)
 - [Varghese K James](https://github.com/vicfic18/)
 
+## Demo video
+Here is the [video](https://drive.google.com/file/d/1V-fX9ydREEORjYTWft_S2IcCntx-FbyU/view?usp=drivesdk)
 ## Installation and Setup
 
 ### Before you start
@@ -25,7 +27,18 @@ cd Vashisht_hackathon_25/
 - Add the necessary api keys as **Environment Variables in the .env file**
 
 ### Frontend
-<TBA>
+#### App
+- Setup ExpoGo App and sign in with the same account on your expo app and your Github setup.
+
+- Clone this repo and install dependencies. Setup firebase and manually replace the variable in firebase.config.ts.
+
+- Run "npx expo start" for hosting via expo. (Run npx expo start --tunnel in case for firewall problems) 
+
+#### Website
+
+- Install this repo and install dependencies.
+
+- Run npm dev to run locally and reproduce
 
 ### Backend
 > **Note :** Backend Tested on Python 3.12
@@ -43,7 +56,7 @@ pip install -r requirements.txt
 ## Usage
 
 ### Frontend
-
+Just Run run it
 ### Backend
 Just run the main.py file. 
 ```bash

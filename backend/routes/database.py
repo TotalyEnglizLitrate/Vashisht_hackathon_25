@@ -3,6 +3,7 @@ from firebase_admin import auth
 from functools import wraps
 from typing import Callable
 from fastapi import Request, HTTPException, status
+import asyncio
 
 sqlite_url = "sqlite:///database.db"
 
@@ -27,6 +28,8 @@ class Order_Data(SQLModel, table=True):
 class Biddings_data(SQLModel, table=True):
     order_id: str = Field(foreign_key="order_data.order_id", primary_key=True)
     company_token: str = Field(foreign_key="companies_data.company_token", primary_key=True)
+    distance: float = Field() # distance in meters
+    estimated_price: float | None
 
     __table__args__ = (UniqueConstraint("order_id", "company_token", name="order_company"))
 
@@ -38,7 +41,7 @@ class Companies_Data(SQLModel, table=True):
 
 def token_validator(f: Callable) -> Callable:
     @wraps(f)
-    def wrapper(request: Request, *args, **kwargs):
+    async def wrapper(request: Request, *args, **kwargs):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             raise HTTPException(
@@ -52,7 +55,10 @@ def token_validator(f: Callable) -> Callable:
             decoded_token = auth.verify_id_token(id_token)
             request.state.user = decoded_token
             request.state.user_token = id_token
-            return f(request, *args, **kwargs)
+            if asyncio.iscoroutinefunction(f):
+                return await f(request, *args, **kwargs)
+            else:
+                return f(request, *args, **kwargs)
             
         except auth.ExpiredIdTokenError:
             raise HTTPException(
@@ -76,11 +82,14 @@ def token_validator(f: Callable) -> Callable:
 
 def dummy_token_validator(f: Callable) -> Callable:
     @wraps(f)
-    def wrapper(request: Request, *args, **kwargs):
+    async def wrapper(request: Request, *args, **kwargs):
         try:
             request.state.user = "dummy user info"
             request.state.user_token = "dummy token"
-            return f(request, *args, **kwargs)
+            if asyncio.iscoroutinefunction(f):
+                return await f(request, *args, **kwargs)
+            else:
+                return f(request, *args, **kwargs)
             
         except auth.ExpiredIdTokenError:
             raise HTTPException(

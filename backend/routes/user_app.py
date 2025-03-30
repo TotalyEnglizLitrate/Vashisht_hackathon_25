@@ -3,13 +3,13 @@ import shutil
 import uuid
 import PIL.Image
 from dotenv import load_dotenv
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, BackgroundTasks
 from sqlmodel import Session, select
-from .database import User_Data, Order_Data, token_validator, dummy_token_validator
-from .database import User_Data, Order_Data, token_validator, engine
-from fastapi import Form, File, UploadFile
+from .database import User_Data, Order_Data, Companies_Data, Biddings_data, token_validator, dummy_token_validator, engine
+from fastapi import Form, File, UploadFile, HTTPException
 from google import genai
 from google.genai import types
+from requests import get
 
 load_dotenv()
 
@@ -28,9 +28,27 @@ def register_user(user_token: str):
     except:
         return {'message': 'Failed to add user. User already exists !'}
    
-@router.post('/new_order/')
-def new_order(user_token: str = Form(), ewaste_type: str = Form(), age: int = Form(), functional: bool = Form(), description: str = Form(), lat: float = Form(), long: float = Form(), file: UploadFile = File()):
 
+def calculate_distance(user_token: str, order_id: str):
+    distances = []
+    with Session(engine) as session:
+        order = session.exec(select(Order_Data).where(Order_Data.order_id == order_id)).first()
+        companies = session.exec(select(Companies_Data)).all()
+        for company in companies:
+            print("hmm")
+            route = get(f"https://router.project-osrm.org/route/v1/driving/{order.long},{order.lat};{company.long},{company.lat}").json()
+            distance = route['routes'][0]['distance'] if route['code'] == 'Ok' else None
+            if not distance:
+                raise HTTPException(status_code=500, detail="Internal server error when processing order")
+            distances.append((distance, company.company_token))
+        distances.sort(key=lambda x: x[0])
+        session.add_all((Biddings_data(order_id=order_id, company_token=company_token, distance=distance) for distance, company_token in distances[30:]))
+        session.commit()
+
+
+
+@router.post('/new_order/')
+async def new_order(user_token: str, background_tasks: BackgroundTasks, ewaste_type: str = Form(), age: int = Form(), functional: bool = Form(), description: str = Form(), lat: float = Form(), long: float = Form(), file: UploadFile = File()):
     if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
     
@@ -40,10 +58,11 @@ def new_order(user_token: str = Form(), ewaste_type: str = Form(), age: int = Fo
         shutil.copyfileobj(file.file, f)
 
     with Session(engine) as session:
-        order = Order_Data(order_id=str(order_id), ewaste_type=ewaste_type, user_token=user_token, product_age=age, functional=functional, description=description, lat=lat, long=long)
+        order = Order_Data(order_id=order_id, ewaste_type=ewaste_type, user_token=user_token, product_age=age, functional=functional, description=description, lat=lat, long=long)
         session.add(order)
         session.commit()
         
+    background_tasks.add_task(calculate_distance, user_token, order_id)
 
     return {'id': str(order_id)}
 

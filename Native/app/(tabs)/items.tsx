@@ -70,8 +70,12 @@ export default function ItemsScreen() {
           {items.map(item => (
             // <li key={item.order_id}>{item.order_status}</li>
             <List.Item
+            // key={}
             title={item.description}
-            description={item.order_status}
+            description={
+              // Capitalize, because somebody is too lazy to change it.
+              String(item.order_status).charAt(0).toUpperCase() + String(item.order_status).slice(1)
+            }
             // left={props => <List.Icon {...props} icon="clipboard-check-outline" />}
             left={props => <List.Icon {...props} icon={item.order_status === 'estimation received'
               ? 'clipboard-check-outline'

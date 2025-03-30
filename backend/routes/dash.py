@@ -83,3 +83,29 @@ def get_bids_by_order_id(company_token: str, order_id: str):
     with Session(engine) as session:
         bids = session.exec(select(Biddings_data).where(Biddings_data.order_id == order_id)).all()
         return [{"order_id": bid.order_id, "bid": bid.estimated_price} for bid in bids].sorted(key=lambda x: x['bid'], reverse=True)
+
+@router.get('/finalise_bid/{order_id}')
+def finalise_bid(order_id: str):
+    with Session(engine) as session:
+        bids = list(
+            session.exec(select(Biddings_data).where(Biddings_data.order_id == order_id)).all()
+            ).sort(key=lambda x: x.bid, reverse=True)
+        if not bids:
+            raise HTTPException(status_code=404, detail="Bid not found")
+        
+        order = session.exec(select(Order_Data).where(Order_Data.order_id == order_id)).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        
+        order.status = "Finalised"
+        order.company_token = bids[0].company_token
+        order.estimated_price = bids[0].estimated_price
+        for bid in bids:
+            session.delete(bid)
+        session.commit()
+        return {
+            "message": "Bid finalised successfully",
+            "company token": order.company_token,
+            "estimated price": order.estimated_price
+            }

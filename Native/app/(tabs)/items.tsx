@@ -44,8 +44,6 @@ export default function ItemsScreen() {
     fetchData();
   }, []);
 
-  // const items: Order[] = data.orders;
-
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -53,6 +51,9 @@ export default function ItemsScreen() {
   if (error) {
     return <Text>Error: {error}</Text>;
   }
+
+  const items: Order[] = data.orders;
+
 
   return (
     <SafeAreaView className="mx-2" style={{ flex: 1 }}>
@@ -65,18 +66,25 @@ export default function ItemsScreen() {
           {/* Data: {items[0].order_id} */}
         </Text>
 
-        {/* {items.map(item => (
-          // <li key={item.order_id}>{item.order_status}</li>
-          <List.Item
-          title="Random Latpop"
-          description={item.order_id}
-          left={props => <List.Icon {...props} icon="clipboard-check-outline" />}
-          right={props => <Text variant="headlineSmall">$450</Text>}
-        />
-        ))} */}
-
-
         <View className="border border-slate-300 rounded-lg">
+          {items.map(item => (
+            // <li key={item.order_id}>{item.order_status}</li>
+            <List.Item
+            title={item.description}
+            description={item.order_status}
+            // left={props => <List.Icon {...props} icon="clipboard-check-outline" />}
+            left={props => <List.Icon {...props} icon={item.order_status === 'estimation received'
+              ? 'clipboard-check-outline'
+              : 'clipboard-text-clock-outline'
+            } />}
+            right={props => <Text variant="headlineSmall">{item.order_status === 'estimation received'
+              ? item.estimated_price
+              : "-"
+            }</Text>}
+          />
+          ))}
+
+          {/* Dummy Stuff */}
           <List.Item
             title="Random Latpop"
             description="Estimation Received"

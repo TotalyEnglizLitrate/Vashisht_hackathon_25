@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, create_engine, Field, Session, select
+from sqlmodel import SQLModel, create_engine, UniqueConstraint, Field, Session, select
 from firebase_admin import auth
 from functools import wraps
 from typing import Callable
@@ -28,8 +28,7 @@ class Biddings_data(SQLModel, table=True):
     order_id: str = Field(foreign_key="order_data.order_id", primary_key=True)
     company_token: str = Field(foreign_key="companies_data.company_token", primary_key=True)
 
-    # class Config:
-    #     constraints = [SQLModel.Constraint("order_company", ["order_id", "company_token"], unique=True)]
+    __table__args__ = (UniqueConstraint("order_id", "company_token", name="order_company"))
 
 class Companies_Data(SQLModel, table=True):
     company_token: str = Field(primary_key=True)

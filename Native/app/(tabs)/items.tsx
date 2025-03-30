@@ -1,15 +1,58 @@
-import { View } from "react-native";
+import { View, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, Button, List } from 'react-native-paper';
 
-interface Item {
-  id: number;
-  name: string;
+interface Order {
+  order_id: string;
+  order_status: string;
+  user_token: string;
+  estimated_price: number;
+  product_age: number;
+  functional: boolean;
+  description: string;
+  lat: number;
+  long: number;
+  ewaste_type: string;
+  company_token: string;
 }
 
-export default function ProfileScreen() {
+export default function ItemsScreen() {
 
+  // Pure Coopy paste method to the data on to the array.
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://10.17.79.148:8000/app/orders_info/?user_token=string');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // const items: Order[] = data.orders;
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (error) {
+    return <Text>Error: {error}</Text>;
+  }
 
   return (
     <SafeAreaView className="mx-2" style={{ flex: 1 }}>
@@ -17,6 +60,22 @@ export default function ProfileScreen() {
 
         <Text variant="headlineLarge">Your orders</Text>
         
+        <Text variant="bodyMedium">
+          Data: {JSON.stringify(data)}
+          {/* Data: {items[0].order_id} */}
+        </Text>
+
+        {/* {items.map(item => (
+          // <li key={item.order_id}>{item.order_status}</li>
+          <List.Item
+          title="Random Latpop"
+          description={item.order_id}
+          left={props => <List.Icon {...props} icon="clipboard-check-outline" />}
+          right={props => <Text variant="headlineSmall">$450</Text>}
+        />
+        ))} */}
+
+
         <View className="border border-slate-300 rounded-lg">
           <List.Item
             title="Random Latpop"

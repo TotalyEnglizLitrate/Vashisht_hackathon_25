@@ -28,8 +28,8 @@ class Biddings_data(SQLModel, table=True):
     order_id: str = Field(foreign_key="order_data.order_id", primary_key=True)
     company_token: str = Field(foreign_key="companies_data.company_token", primary_key=True)
 
-    class Config:
-        constraints = [SQLModel.Constraint("order_company", ["order_id", "company_token"], unique=True)]
+    # class Config:
+    #     constraints = [SQLModel.Constraint("order_company", ["order_id", "company_token"], unique=True)]
 
 class Companies_Data(SQLModel, table=True):
     company_token: str = Field(primary_key=True)

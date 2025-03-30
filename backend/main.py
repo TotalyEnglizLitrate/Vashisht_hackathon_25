@@ -14,8 +14,8 @@ async def lifespan(app: FastAPI):
     create_db()
     yield
 
-cred = credentials.Certificate("firebase_credentials.json")
-initialize_app(cred) 
+# cred = credentials.Certificate("firebase_credentials.json")
+initialize_app(None) 
 app = FastAPI(lifespan=lifespan)
 app.include_router(routes.dash.router, prefix="/dash")
 app.include_router(routes.user_app.router, prefix="/app")

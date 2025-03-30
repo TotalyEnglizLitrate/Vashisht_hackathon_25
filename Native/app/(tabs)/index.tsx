@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { View } from "react-native";
 import { Button, Text, List } from 'react-native-paper';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -39,7 +39,7 @@ export default function Index() {
     </script>
 </html>
   `
-
+  const router = useRouter();
 
   return (
       <SafeAreaView className="mx-5" style={{ flex:1 }}>
@@ -47,7 +47,7 @@ export default function Index() {
         <Text variant="headlineSmall">Welcome back</Text>
         <Text variant="headlineLarge">User!</Text>
 
-        <Button className="mx-20 mt-5 p-4" mode="elevated" onPress={() => console.log('Pressed')}>
+        <Button className="mx-20 mt-5 p-4" mode="elevated" onPress={() => router.navigate('/order1')}>
           <Text className="ml-5" variant="headlineLarge">Give Order</Text>
         </Button>
       

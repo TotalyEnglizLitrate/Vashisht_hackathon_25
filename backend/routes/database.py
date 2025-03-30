@@ -14,6 +14,11 @@ class User_Data(SQLModel, table=True):
 class Order_Data(SQLModel, table=True):
     order_id: str = Field(primary_key=True)
     order_status: str = Field(default="estimate pending")
+    product_age: int = Field()
+    functional: bool = Field(default=False)
+    description: str = Field()
+    lat: float = Field()
+    long: float = Field()
     user_token: str = Field(foreign_key="user_data.user_token")
     estimated_price: float | None
     ewaste_type: str = Field()

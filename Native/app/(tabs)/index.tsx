@@ -10,6 +10,7 @@ import { StyleSheet } from 'react-native';
 export default function Index() {
 
   // Leaflet stuff
+  // https://leafletjs.com/examples/quick-start/
   const wvmap = `
 <html>
     <head>

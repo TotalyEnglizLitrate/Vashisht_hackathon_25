@@ -29,7 +29,7 @@ def register_user(user_token: str):
         return {'message': 'Failed to add user. User already exists !'}
    
 @router.post('/new_order/')
-def new_order(user_token: str = Form(), ewaste_type: str = Form(), file: UploadFile = File()):
+def new_order(user_token: str = Form(), ewaste_type: str = Form(), age: int = Form(), functional: bool = Form(), description: str = Form(), lat: float = Form(), long: float = Form(), file: UploadFile = File()):
 
     if not os.path.isdir(UPLOAD_FOLDER):
         os.mkdir(UPLOAD_FOLDER)
@@ -40,7 +40,7 @@ def new_order(user_token: str = Form(), ewaste_type: str = Form(), file: UploadF
         shutil.copyfileobj(file.file, f)
 
     with Session(engine) as session:
-        order = Order_Data(order_id=str(order_id), ewaste_type=ewaste_type, user_token=user_token)
+        order = Order_Data(order_id=str(order_id), ewaste_type=ewaste_type, user_token=user_token, product_age=age, functional=functional, description=description, lat=lat, long=long)
         session.add(order)
         session.commit()
         
@@ -57,6 +57,11 @@ def get_orders(user_token: str):
                 "order_status": order.order_status,
                 "user_token": order.user_token,
                 "estimated_price": order.estimated_price,
+                "product_age": order.product_age,
+                "functional": order.functional,
+                "description": order.description,
+                "lat": order.lat,
+                "long": order.long,
                 "ewaste_type": order.ewaste_type,
                 "company_token": order.company_token
             }

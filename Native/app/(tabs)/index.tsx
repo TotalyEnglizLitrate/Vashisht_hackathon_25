@@ -1,14 +1,11 @@
-import { images } from "@/constants/images";
-import { Link } from "expo-router";
-import { Image,Text, View } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 
-export default function Index() {
+export default function HomeScreen() {
   return (
-    <View className="flex-1 bg-primary">
-      <Image source={images.bg} className="absolute w-full z-0"></Image>
-      
-      
-
-    </View>
+    <SafeAreaView className="flex-1 bg-gray-900">
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-white text-xl font-bold">Home Screen</Text>
+      </View>
+    </SafeAreaView>
   );
 }
